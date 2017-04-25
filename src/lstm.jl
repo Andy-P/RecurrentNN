@@ -36,7 +36,6 @@ type LSTMLayer # a single layer of a multi-layer RNN
         wcx = randNNMat(hiddensize, prevsize, std)
         wch = randNNMat(hiddensize, hiddensize, std)
         bc = NNMatrix(hiddensize, 1, zeros(hiddensize,1), zeros(hiddensize,1))
-
         new(wix,wih,bi,　wfx,wfh,bf,　wox,woh,bo,　wcx,wch,bc)
     end
 end
@@ -104,7 +103,6 @@ function forwardprop(g::Graph, model::LSTM, x, prev)
     hidden = Array(NNMatrix,0)
     cell = Array(NNMatrix,0)
     for d in 1:length(model.hiddensizes) # for each hidden layer
-
         input = d == 1 ? x : hidden[d-1]
         hdprev = hiddenprevs[d]
         cellprev = cellprevs[d]
@@ -152,7 +150,6 @@ function forwardprop(g::Graph, model::LSTM, x, prev)
 
         # compute hidden state as gated, saturated cell activations
         hidden_d = eltmul(g, outputgate, tanh(g, cell_d))
-
         push!(hidden,hidden_d)
         push!(cell, cell_d)
     end
@@ -163,4 +160,3 @@ function forwardprop(g::Graph, model::LSTM, x, prev)
     # return cell memory, hidden representation and output
     return hidden, cell, output
 end
-

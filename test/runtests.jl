@@ -1,5 +1,6 @@
+
 using RecurrentNN
-reload("RecurrentNN.jl")
+#reload("RecurrentNN.jl")
 using Base.Test
 
 # graph output test
