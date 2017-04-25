@@ -73,13 +73,13 @@ wil, model = initModel(inputsize, lettersize, hiddensizes, outputsize)
 
 tickiter = 0
 pplmedian = Inf # perplexity will slowly move towards 0
-pplcurve = Array(FloatingPoint,0) # track perplexity
+pplcurve = Array(Float64,0) # track perplexity
 
 #########################################
 #             run the model             #
 #########################################
 
-function predictsentence(model::Model, wil::NNMatrix, samplei::Bool=false, temp::FloatingPoint=1.0)
+function predictsentence(model::Model, wil::NNMatrix, samplei::Bool=false, temp::Float64=1.0)
 
     g = Graph(false) # backprop not needed
     s = ""
@@ -164,7 +164,7 @@ function costfunc(model:: Model, wil::NNMatrix, sent::String)
     return g, ppl, cost
 end
 
-function tick(model::Model, wil::NNMatrix, sents::Array, solver::Solver, tickiter::Int, pplcurve::Array{FloatingPoint,1}, pplmedian)
+function tick(model::Model, wil::NNMatrix, sents::Array, solver::Solver, tickiter::Int, pplcurve::Array{Float64,1}, pplmedian)
 
     # sample sentence fromd data
 #     sent = sents[rand(1:21)] # use this if just kicking tires (faster)
@@ -180,7 +180,7 @@ function tick(model::Model, wil::NNMatrix, sents::Array, solver::Solver, tickite
     backprop(g)
 
     # perform param update ( learning_rate, regc, clipval are global constants)
-    solverstats = step(solver, model, learning_rate, regc, clipval)
+    solverstats = stepr(solver, model, learning_rate, regc, clipval)
 
     tm = (time_ns()-t1)/1e9
 
@@ -204,11 +204,12 @@ function tick(model::Model, wil::NNMatrix, sents::Array, solver::Solver, tickite
     return model, wil, solver, tickiter, pplcurve, pplmedian
 end
 
-maxIter = 100 # make this about 100_000 to run full model
+maxIter = 10000 # make this about 100_000 to run full model
 trgppl = 1.1 # stop if this perplexity score is reached
 @time while tickiter < maxIter && pplmedian > trgppl
     model, wil, solver, tickiter, pplcurve, pplmedian = tick(model, wil, sents, solver, tickiter, pplcurve, pplmedian)
 end
+
 
 # Profile.print(format=:flat)
 #using ProfileView

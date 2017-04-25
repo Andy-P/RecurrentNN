@@ -5,8 +5,7 @@ type Solver
    Solver() = new(0.999, 1e-8, Array(NNMatrix,0))
 end
 
-function step(solver::Solver, model::Model, stepsize::Float64, regc::Float64, clipval::Float64)
-
+function stepr(solver::Solver, model::Model, stepsize::Float64, regc::Float64, clipval::Float64)
     # perform parameter update
     solverstats = Array(Float64,0)
     numclipped = 0
@@ -27,7 +26,6 @@ function step(solver::Solver, model::Model, stepsize::Float64, regc::Float64, cl
         @inbounds s = solver.stepcache[k]
         for i = 1:m.n
             for j = 1:m.d
-
                 # rmsprop adaptive learning rate
                 @inbounds mdwi = m.dw[i,j]
                 @inbounds s.w[i,j] = s.w[i,j] * solver.decayrate + (1.0 - solver.decayrate) * mdwi^2
@@ -43,7 +41,6 @@ function step(solver::Solver, model::Model, stepsize::Float64, regc::Float64, cl
                     numclipped += 1
                 end
                 numtot += 1
-
                 # update (and regularize)
                 @inbounds m.w[i,j] += - stepsize * mdwi / sqrt(s.w[i,j] + solver.smootheps) - regc * m.w[i,j]
                 @inbounds m.dw[i,j] = 0. # reset gradients for next iteration
@@ -51,5 +48,6 @@ function step(solver::Solver, model::Model, stepsize::Float64, regc::Float64, cl
         end
     end
     solverstats　=  numclipped * 1.0 / numtot
+    solverstats=1/(1+exp(solverstats)) #add myself
     return solverstats
 end

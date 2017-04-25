@@ -13,10 +13,13 @@ function rowpluck(g::Graph, m::NNMatrix, ix::Int)
     # pluck a row of m and return it as a column vector
     out = NNMatrix(m.d, 1)
     out.w[:,1] = m.w[ix,:]'
+    #println("m.w=",m.w)
+    #println("out.w=",out.w)
     if g.doBackprop
         push!(g.backprop,
               function ()
-                 m.dw[ix,:] += out.dw[:,1]'
+                #m.dw[ix,:] += out.dw[:,1]' #原程序，维数不对
+                m.dw[ix,:]+= vec(out.dw[:,1]')  
               end )
     end
     return out
